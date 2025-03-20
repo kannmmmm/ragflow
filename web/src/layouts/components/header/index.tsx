@@ -9,6 +9,7 @@ import { Flex, Layout, Radio, Space, theme } from 'antd';
 import { MouseEventHandler, useCallback, useMemo } from 'react';
 import { useLocation } from 'umi';
 import Toolbar from '../right-toolbar';
+import { useFetchUserInfo } from '@/hooks/user-setting-hooks';
 
 import { useTheme } from '@/components/theme-provider';
 import styles from './index.less';
@@ -23,8 +24,9 @@ const RagHeader = () => {
   const { pathname } = useLocation();
   const { t } = useTranslate('header');
   const appConf = useFetchAppConf();
+  const { data: userInfo } = useFetchUserInfo();
   const { theme: themeRag } = useTheme();
-  const tagsData = useMemo(
+  const allRoutes = useMemo(
     () => [
       { path: '/knowledge', name: t('knowledgeBase'), icon: KnowledgeBaseIcon },
       { path: '/chat', name: t('chat'), icon: MessageOutlined },
@@ -34,6 +36,16 @@ const RagHeader = () => {
     ],
     [t],
   );
+
+  const tagsData = useMemo(() => {
+      if (!userInfo) return [];
+
+      if (userInfo.is_superuser) return allRoutes;
+
+      return allRoutes.filter(route => 
+        ['/chat', '/search'].includes(route.path)
+      );
+  }, [allRoutes, userInfo]);
 
   const currentPath = useMemo(() => {
     return (
@@ -76,6 +88,7 @@ const RagHeader = () => {
         </Space>
       </a>
       <Space size={[0, 8]} wrap>
+        {userInfo && (
         <Radio.Group
           defaultValue="a"
           buttonStyle="solid"
@@ -107,6 +120,7 @@ const RagHeader = () => {
             </Radio.Button>
           ))}
         </Radio.Group>
+        )}
       </Space>
       <Toolbar></Toolbar>
     </Header>
