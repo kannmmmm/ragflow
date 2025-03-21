@@ -49,7 +49,7 @@ const RagHeader = () => {
 
   const currentPath = useMemo(() => {
     return (
-      tagsData.find((x) => pathname.startsWith(x.path))?.name || 'knowledge'
+      tagsData.find((x) => pathname.startsWith(x.path))?.name || 'chat'
     );
   }, [pathname, tagsData]);
 

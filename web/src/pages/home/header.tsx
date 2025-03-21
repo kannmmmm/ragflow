@@ -25,10 +25,10 @@ export function HomeHeader() {
 
   const tagsData = useMemo(
     () => [
-      { path: '/home', name: t('knowledgeBase'), icon: Library },
+      // { path: '/home', name: t('knowledgeBase'), icon: Library },
       { path: '/chat', name: t('chat'), icon: MessageSquareText },
-      { path: '/search', name: t('search'), icon: Search },
-      { path: '/flow', name: t('flow'), icon: Cpu },
+      // { path: '/search', name: t('search'), icon: Search },
+      // { path: '/flow', name: t('flow'), icon: Cpu },
       // { path: '/file', name: t('fileManager'), icon: FileIcon },
     ],
     [t],

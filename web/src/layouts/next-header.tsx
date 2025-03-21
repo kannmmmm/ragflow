@@ -5,6 +5,7 @@ import { Segmented, SegmentedValue } from '@/components/ui/segmented';
 import { useTranslate } from '@/hooks/common-hooks';
 import { useNavigatePage } from '@/hooks/logic-hooks/navigate-hooks';
 import { useNavigateWithFromState } from '@/hooks/route-hook';
+import { useFetchUserInfo } from '@/hooks/user-setting-hooks';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import {
@@ -27,8 +28,9 @@ export function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigateWithFromState();
   const { navigateToHome, navigateToProfile } = useNavigatePage();
+  const { data: userInfo } = useFetchUserInfo();
 
-  const tagsData = useMemo(
+  const allRoutes = useMemo(
     () => [
       { path: Routes.Datasets, name: t('knowledgeBase'), icon: Library },
       { path: Routes.Chats, name: t('chat'), icon: MessageSquareText },
@@ -38,6 +40,18 @@ export function Header() {
     ],
     [t],
   );
+
+  const tagsData = useMemo(() => {
+    if (!userInfo) return []; // 等待用户信息加载
+    
+    // 超级用户返回全部路由
+    if (userInfo.is_superuser) return allRoutes;
+    
+    // 普通用户只保留chat和search
+    return allRoutes.filter(route => 
+      [Routes.Chats, Routes.Searches].includes(route.path)
+    );
+  }, [allRoutes, userInfo]);
 
   const options = useMemo(() => {
     return tagsData.map((tag) => {
@@ -80,14 +94,14 @@ export function Header() {
           className="w-[100] h-[100] mr-[12]"
           onClick={handleLogoClick}
         />
-        <Button
+        {/* <Button
           variant="secondary"
           className="bg-colors-background-inverse-standard"
         >
           <Github />
           21.5k stars
-          <Star />
-        </Button>
+          <Star /> */}
+        {/* </Button> */}
       </div>
       <div className="flex gap-2 items-center">
         <Button
@@ -105,12 +119,14 @@ export function Header() {
           />
         </Button>
         <div className="h-8 w-[1px] bg-colors-outline-neutral-strong"></div>
-        <Segmented
-          options={options}
-          value={currentPath}
-          onChange={handleChange}
-          className="bg-colors-background-inverse-standard text-backgroundInverseStandard-foreground"
-        ></Segmented>
+        {userInfo && (
+          <Segmented
+            options={options}
+            value={currentPath}
+            onChange={handleChange}
+            className="bg-colors-background-inverse-standard text-backgroundInverseStandard-foreground"
+          ></Segmented>
+        )}
       </div>
       <div className="flex items-center gap-4">
         <Container className="bg-colors-background-inverse-standard hidden xl:flex">
